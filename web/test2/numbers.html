@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<input id="field" type="text">
+<button onclick="trans.transform();">Transform</button>
+<div id="res"></div>
+<script>
+    trans = {
+        resource:[
+            ["одинадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать"],
+            ["один", "десять", "сто", "одна"],
+            ["два", "двадцать", "двести", "две"],
+            ["три", "тридцать", "триста", "три"],
+            ["четыре", "сорок", "четыреста", "четыре"],
+            ["пять", "пятьдесят", "пятьсот", "пять"],
+            ["шесть", "шестьдесят", "шестьсот", "шесть"],
+            ["семь", "семьдесят", "семьсот", "семь"],
+            ["восемь", "восемьдесят", "восемсот", "восемь"],
+            ["девять", "девяносто", "девятьсот", "девять"]
+        ],
+        transform: function(){
+            var fieldText = document.getElementById('field').value;
+            var dgLen = fieldText.length;
+            if (!dgLen) return;
+            var dgArr = fieldText.split('');
+            var dgPointer = 0;
+            var result = this.checkEleven(dgArr);
+
+            if (result !== 'undefined' && result.length > 0) {
+                dgLen = dgLen - 2;
+                dgPointer = 2;
+            }
+
+            for (var i=dgLen - 1; i>=0; i--) {
+                if (dgArr[i] !='0') {
+                    result.push(dgPointer != 3 ? this.resource[dgArr[i]][dgPointer] : this.getSuffix(dgArr[i]));
+                }
+                dgPointer++;
+            }
+
+            result.reverse();
+            this.changeText('res', result.join(' '));
+        },
+
+        checkEleven: function(data) {
+            var size = data.length;
+            if (data[size-2] == '1' && data[size-1] != '0') return [this.resource[0][data[size-1] - 1]];
+            return [];
+        },
+
+        getSuffix: function(data) {
+            var suffix = "";
+            switch (data) {
+                case "1":
+                    suffix = "тысяча";
+                    break;
+                case "2":
+                case "3":
+                case "4":
+                    suffix = "тысячи";
+                    break;
+                default :
+                    suffix = "тысяч";
+            }
+            return this.resource[data][3] + " " + suffix;
+        },
+
+        changeText: function(id, text) {
+            document.getElementById(id).innerHTML = '<span>' + text + '</span>';
+        }
+
+    }
+</script>
+</body>
+</html>
