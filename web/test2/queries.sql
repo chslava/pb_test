@@ -6,62 +6,57 @@ SELECT category_name FROM category WHERE id IN (
   )
 );
 
-SELECT id FROM product
-  LEFT JOIN category_product ON product.id = category_product.product_id
-  LEFT JOIN category ON category.id = category_product.category_id
-  WHERE product_name IN ('Шлепки', 'Ласты', 'Клеш', 'Джинсы')
-;
+SELECT c.category_name FROM category AS c, category_product AS cp, product AS p
+WHERE p.product_name IN ('Шлепки', 'Ласты', 'Клеш', 'Джинсы') AND cp.product_id=p.id AND c.id=cp.category_id GROUP BY c.id;
+
+SELECT c.category_name FROM product AS p
+INNER JOIN category_product AS cp ON p.id = cp.product_id
+INNER JOIN category AS c ON c.id = cp.category_id
+WHERE product_name IN ('Шлепки', 'Ласты', 'Клеш', 'Джинсы') GROUP BY c.id;
 
 -- Задание 2, п.3.b  --
 
-SELECT product_name FROM product WHERE id IN (
-  SELECT product_id FROM category_product WHERE category_id IN (
-    SELECT id FROM category WHERE category_path LIKE ('%/4') OR category.category_path LIKE ('%/4/%')
-  )
-);
+SELECT p.product_name
+FROM category AS child,
+    category AS parent,
+    category_product AS cp,
+    product AS p
+WHERE child.lft BETWEEN parent.lft AND parent.rgt
+      AND parent.category_name = 'Обувь'
+      AND child.id=cp.category_id
+      AND p.id=cp.product_id
+GROUP BY p.product_name;
 
 -- Задание 2, п.3.c  --
 
-SELECT category_name, sum(qty) FROM category
-  LEFT JOIN category_product ON category.id=category_product.category_id
-  LEFT JOIN product ON product.id=category_product.product_id
-WHERE category_id IN (9,10,1)
-GROUP BY category_id
-;
+SELECT parent.category_name, SUM(p.qty)
+FROM category AS child ,
+     category AS parent,
+     category_product AS cp,
+     product AS p
+WHERE child.lft BETWEEN parent.lft AND parent.rgt
+      AND child.id = cp.category_id
+      AND parent.category_name IN ('Обувь', 'Классика')
+      AND p.id = cp.product_id
+GROUP BY parent.category_name
+ORDER BY parent.category_name;
 
 -- Задание 2, п.3.d  --
 
-SELECT category_name, COUNT(product_id) FROM category
-  LEFT JOIN category_product ON category.id=category_product.category_id
-WHERE category_id IN (9,10,1)
-GROUP BY category_id
-;
+SELECT parent.category_name, COUNT(cp.product_id)
+FROM category AS child ,
+  category AS parent,
+  category_product AS cp
+WHERE child.lft BETWEEN parent.lft AND parent.rgt
+      AND child.id = cp.category_id AND parent.category_name IN ('Обувь', 'Классика')
+GROUP BY parent.category_name
+ORDER BY parent.category_name;
 
 -- Задание 2, п.3.e  --
 
-DROP PROCEDURE IF EXISTS get_category_breadcrumb;
-CREATE PROCEDURE get_category_breadcrumb(path TEXT)
-  BEGIN
-    declare i int default 0;
-    DECLARE breadcrumb TEXT;
-    DECLARE name TEXT;
-    DECLARE cat_id TEXT;
-
-    WHILE LENGTH(path) > 0 DO
-      SET i = LOCATE('/', path);
-      IF (i = 0)
-      THEN SET i = LENGTH(path) + 1;
-      END IF;
-      SET cat_id = SUBSTRING(path, 1, i - 1);
-      SELECT category_name INTO name FROM category WHERE id=cat_id;
-      SET breadcrumb = concat_ws('/', breadcrumb, name);
-      SET path = SUBSTRING(path, i + 1, LENGTH(path));
-    END WHILE;
-    SELECT breadcrumb;
-  END;
-
-
-
-CALL get_category_breadcrumb(
-    (SELECT category_path FROM category WHERE id=1)
-);
+SELECT parent.category_name
+FROM category AS child,
+     category AS parent
+WHERE child.lft BETWEEN parent.lft AND parent.rgt
+      AND child.category_name = 'Классика'
+ORDER BY parent.lft;

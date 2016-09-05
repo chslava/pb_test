@@ -25,10 +25,12 @@ DROP TABLE IF EXISTS `category`;
 CREATE TABLE `category` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `category_name` varchar(32) DEFAULT NULL,
-  `parent_id` int(10) unsigned DEFAULT NULL,
-  `category_path` varchar(10) DEFAULT NULL,
+  `lft` int(10) unsigned NOT NULL,
+  `rgt` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_id` (`id`),
+  UNIQUE KEY `unique_rgt` (`rgt`),
+  UNIQUE KEY `unique_lft` (`lft`),
   KEY `name_index` (`category_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -39,7 +41,7 @@ CREATE TABLE `category` (
 
 LOCK TABLES `category` WRITE;
 /*!40000 ALTER TABLE `category` DISABLE KEYS */;
-INSERT INTO `category` VALUES (1,'Одежда',NULL,'1'),(2,'Мужская',1,'1/2'),(3,'Обувь',2,'1/2/3'),(4,'Брюки',2,'1/2/4'),(5,'Летняя',3,'1/2/3/5'),(6,'Зимняя',3,'1/2/3/6'),(9,'Классика',2,'1/2/4/9'),(10,'Другие',2,'1/2/4/10');
+INSERT INTO `category` VALUES (1,'Одежда',1,16),(2,'Мужская',2,15),(3,'Обувь',3,8),(4,'Брюки',9,14),(5,'Летняя',4,5),(6,'Зимняя',6,7),(9,'Классика',10,11),(10,'Другие',12,13);
 /*!40000 ALTER TABLE `category` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -108,4 +110,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-03 15:27:24
+-- Dump completed on 2016-09-06  0:46:22
